@@ -29,6 +29,21 @@ allprojects {
 	version = getProjectVersion()
 }
 
+// The public Maven Central workflow stages every library here, then uploads them all as one deployment, so Central
+// publishes all of them or none.
+providers.gradleProperty("stagingRepository").map { file(it) }.orNull?.let { stagingRepository ->
+	subprojects {
+		pluginManager.withPlugin("maven-publish") {
+			extensions.configure<PublishingExtension> {
+				repositories.maven {
+					name = "staging"
+					url = stagingRepository.toURI()
+				}
+			}
+		}
+	}
+}
+
 private fun getProjectVersion(): String {
 	val versionFromGradleProperties = runCatching { property("ARTIFACT_VERSION").toString() }.getOrNull()
 	val versionFromWorkflow = runCatching { property("githubRefName").toString().removePrefix("v") }.getOrNull()

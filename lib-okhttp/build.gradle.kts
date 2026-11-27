@@ -1,4 +1,6 @@
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.SourcesJar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -35,8 +37,9 @@ android {
 }
 
 mavenPublishing {
-	// Setting publishJavadocJar to true causes issues with Dokka and JVM 11+: https://github.com/Kotlin/dokka/issues/2956
-	configure(AndroidSingleVariantLibrary(variant = "release", sourcesJar = true, publishJavadocJar = false))
+	// Maven Central requires a javadoc jar. An empty one, because Dokka has issues with JVM 11+:
+	// https://github.com/Kotlin/dokka/issues/2956
+	configure(AndroidSingleVariantLibrary(javadocJar = JavadocJar.Empty(), sourcesJar = SourcesJar.Sources(), variant = "release"))
 	coordinates(project.group.toString(), property("ARTIFACT_ID").toString(), project.version.toString())
 }
 
