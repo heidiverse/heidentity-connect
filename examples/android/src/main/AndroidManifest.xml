@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<!--
+		App2App: the SDK only opens the deep link of the user-interacting app if it can see an installed app that
+		handles it. Since Android 11, other apps are only visible if they are declared here. Replace the host with the
+		one of the user-interacting app's deep link, or use android:scheme="..." alone if it is a custom scheme.
+	-->
+	<queries>
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+
+			<category android:name="android.intent.category.BROWSABLE" />
+
+			<data
+				android:host="authenticator.example.com"
+				android:scheme="https" />
+		</intent>
+	</queries>
+
+	<application
+		android:name=".OidcApplication"
+		android:allowBackup="true"
+		android:icon="@mipmap/ic_launcher"
+		android:label="@string/app_name"
+		android:networkSecurityConfig="@xml/network_security_config"
+		android:roundIcon="@mipmap/ic_launcher_round"
+		android:supportsRtl="true"
+		android:theme="@style/Theme.Oidc">
+
+		<!--
+			singleTask, because the user-interacting app opens the App2App callback from its own task. Any other launch
+			mode would start a second MainActivity in that task instead of returning to this one.
+		-->
+		<activity
+			android:name=".MainActivity"
+			android:exported="true"
+			android:label="@string/app_name"
+			android:launchMode="singleTask">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+
+			<!--
+				App2App: the native callback URI, see SampleApp2AppConfig.DEFAULT_NATIVE_CALLBACK_URI. The user-interacting
+				app opens it once the user is done there. Must not overlap with the redirect URI below.
+			-->
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+
+				<data
+					android:host="app2app"
+					android:scheme="org.heidiverse.connect.sdk.sample" />
+			</intent-filter>
+		</activity>
+
+		<activity
+			android:name="org.heidiverse.connect.sdk.browser.RedirectUriReceiverActivity"
+			android:exported="true">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+
+				<data
+					android:host="oidc"
+					android:scheme="org.heidiverse.connect.sdk.sample" />
+			</intent-filter>
+		</activity>
+	</application>
+
+</manifest>
